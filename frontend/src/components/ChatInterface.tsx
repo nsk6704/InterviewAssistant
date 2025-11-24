@@ -39,23 +39,7 @@ export default function ChatInterface({
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isLoading]);
 
-    // Speak assistant messages when they appear
-    useEffect(() => {
-        if (!isSpeaking) return;
-        const lastIdx = messages.length - 1;
-        const lastMsg = messages[lastIdx];
-        if (
-            lastMsg &&
-            lastMsg.role === 'assistant' &&
-            interviewerVoice &&
-            lastSpokenIndexRef.current !== lastIdx
-        ) {
-            lastSpokenIndexRef.current = lastIdx;
-            speak(lastMsg.content, interviewerVoice, () => {
-                // Voice finished
-            });
-        }
-    }, [messages, isSpeaking, interviewerVoice]);
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -98,6 +82,28 @@ export default function ChatInterface({
         }
         setIsSpeaking(!isSpeaking);
     };
+
+    // Speak assistant messages when they appear
+    useEffect(() => {
+        if (!isSpeaking) return;
+        const lastIdx = messages.length - 1;
+        const lastMsg = messages[lastIdx];
+        if (
+            lastMsg &&
+            lastMsg.role === 'assistant' &&
+            interviewerVoice &&
+            lastSpokenIndexRef.current !== lastIdx
+        ) {
+            lastSpokenIndexRef.current = lastIdx;
+            speak(lastMsg.content, interviewerVoice, () => {
+                // Voice finished - Auto start recording
+                // Check if we are already recording to avoid toggling off
+                if (!mediaRecorderRef.current || mediaRecorderRef.current.state === 'inactive') {
+                    toggleListening();
+                }
+            });
+        }
+    }, [messages, isSpeaking, interviewerVoice]); // toggleListening is stable enough or we accept re-runs
 
     return (
         <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-blue-50 overflow-hidden">

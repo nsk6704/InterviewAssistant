@@ -59,9 +59,14 @@ function App() {
         ...prev,
         messages: [...prev.messages, assistantMessage],
       }));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to send message:', error);
-      alert('Failed to send message. Please try again.');
+      if (error.response && error.response.status === 404) {
+        alert('Session expired. The server may have restarted. Please start a new interview.');
+        handleRestart();
+      } else {
+        alert('Failed to send message. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
