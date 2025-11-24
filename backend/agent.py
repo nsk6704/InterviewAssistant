@@ -29,7 +29,7 @@ Your goal is to assess the candidate's technical skills, problem-solving approac
             
         prompt += f"""
 Core Interview Guidelines:
-1. Introduce yourself as {self.interviewer['name']} and ask the first question.
+1. Introduce yourself as {self.interviewer['name']} and ask the candidate to introduce themselves. Do not ask a technical question yet.
 2. Ask ONE focused question at a time. Never overwhelm with multiple questions.
 3. Listen actively and ask intelligent follow-up questions based on their answers.
 4. If uncertain about their response, probe deeper to understand their thought process.
