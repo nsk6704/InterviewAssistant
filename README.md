@@ -6,19 +6,19 @@ An AI-powered interview practice application built with **FastAPI**, **React**, 
 
 This project is designed to excel in the following areas:
 
-### 1. Conversational Quality 🗣️
+### 1. Conversational Quality 
 - **Natural Interaction**: Uses `llama-3.3-70b-versatile` for high-fidelity, nuanced conversations that feel like a real human interviewer.
 - **Context Awareness**: Maintains conversation history to reference previous answers and build a coherent dialogue.
 - **Professional Persona**: Prompt engineered to be supportive yet rigorous, mimicking a senior technical interviewer.
 - **Voice Integration**: Seamless speech-to-text (STT) and text-to-speech (TTS) for a truly immersive experience.
 
-### 2. Agentic Behaviour 🤖
+### 2. Agentic Behaviour 
 - **Proactive Guidance**: The agent guides the user through the interview stages (Introduction -> Technical Questions -> Behavioral -> Feedback).
 - **Error Recovery**: Graceful handling of API failures or network issues with non-blocking toast notifications.
 - **Self-Correction**: If the user is confused or goes off-topic, the agent gently steers the conversation back to the interview context.
 - **Session Management**: Robust state handling ensures the interview progress is saved even if the user refreshes (session-based).
 
-### 3. Technical Implementation 🛠️
+### 3. Technical Implementation 
 - **Backend**: FastAPI (Python) for high-performance async API handling.
 - **Frontend**: React (Vite) + Tailwind CSS + Material UI for a polished, responsive interface.
 - **AI Engine**: Groq API for ultra-low latency inference, crucial for real-time voice interactions.
@@ -26,7 +26,7 @@ This project is designed to excel in the following areas:
   - **STT**: Groq Whisper API for high-accuracy speech transcription.
   - **TTS**: PlayAI (via Groq) for natural-sounding voice output.
 
-### 4. Intelligence & Adaptability 🧠
+### 4. Intelligence & Adaptability 
 - **Dynamic Difficulty**: Adjusts question complexity based on user responses and selected difficulty level.
 - **Role Customization**: Tailors questions specifically for Software Engineers, Data Scientists, Product Managers, etc.
 - **Resume Analysis**: Can analyze provided resume text to ask personalized questions about past experience.
@@ -34,7 +34,7 @@ This project is designed to excel in the following areas:
 
 ---
 
-## 🔄 Evolution of Design & Pivots
+##  Evolution of Design & Pivots
 
 This project evolved through several iterations to maximize user experience and performance. Here are the key pivots we made and why:
 
@@ -58,7 +58,7 @@ This project evolved through several iterations to maximize user experience and 
 
 ---
 
-## 🎨 Design Decisions & Reasoning
+##  Design Decisions & Reasoning
 
 ### Why Groq + Llama 3.3?
 *Reasoning*: Real-time voice interaction requires near-instant responses. Traditional LLM APIs often have multi-second latency, breaking the flow of conversation. Groq offers the fastest inference speeds available, and Llama 3.3 70B provides the high intelligence needed for technical interviewing without the cost/latency of proprietary models.
@@ -74,23 +74,23 @@ This project evolved through several iterations to maximize user experience and 
 
 ---
 
-## 🧪 Testing & Demo Scenarios
+##  Testing & Demo Scenarios
 
 We encourage you to test the agent with these specific personas to see its adaptability:
 
-### 1. The Confused User 😕
+### 1. The Confused User 
 *Scenario*: Start an interview and ask vague questions like "What should I say?" or "I don't know what to do."
 *Expected Behavior*: The agent should patiently explain the interview process, reassure the user, and re-ask the initial question or offer a simpler starting point.
 
-### 2. The Efficient User ⚡
+### 2. The Efficient User 
 *Scenario*: Give short, direct, and technically correct answers. Skip pleasantries.
 *Expected Behavior*: The agent should recognize the proficiency, minimize small talk, and quickly ramp up the difficulty to challenge the user with deeper technical concepts.
 
-### 3. The Chatty User 🗣️
+### 3. The Chatty User 
 *Scenario*: Try to derail the interview by talking about hobbies, the weather, or irrelevant personal stories.
 *Expected Behavior*: The agent should politely acknowledge the comment but firmly steer the conversation back to the interview topic (e.g., "That sounds interesting, but let's focus on your experience with Python...").
 
-### 4. The Edge Case User 🛑
+### 4. The Edge Case User 
 *Scenario*: 
 - Provide invalid inputs (gibberish).
 - Refuse to answer questions.
@@ -99,7 +99,7 @@ We encourage you to test the agent with these specific personas to see its adapt
 
 ---
 
-## 🚀 Setup Instructions
+##  Setup Instructions
 
 ### Prerequisites
 - Python 3.8+
@@ -126,7 +126,7 @@ Access the app at `http://localhost:5173`.
 
 ---
 
-## � Project Structure
+##  Project Structure
 
 ```
 AntiGrav/
