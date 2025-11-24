@@ -75,6 +75,18 @@ function App() {
   const handleEndInterview = async () => {
     if (!session.sessionId) return;
 
+    setSession((prev) => ({
+      ...prev,
+      isInterviewing: false,
+      messages: [
+        ...prev.messages,
+        {
+          role: 'assistant',
+          content: 'Give me a moment to review your performance and compile detailed feedback...',
+        },
+      ],
+    }));
+
     try {
       setIsLoading(true);
       const feedback = await api.getFeedback(session.sessionId);
@@ -82,12 +94,12 @@ function App() {
       setSession((prev) => ({
         ...prev,
         feedback,
-        isInterviewing: false,
       }));
       setState('feedback');
     } catch (error) {
       console.error('Failed to get feedback:', error);
       alert('Failed to get feedback. Please try again.');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -98,13 +110,15 @@ function App() {
       messages: [],
       isInterviewing: false,
       feedback: null,
+      interviewerVoice: undefined,
     });
     setState('setup');
+    setIsLoading(false);
   };
 
   return (
     <>
-      {state === 'setup' && <InterviewSetup onStart={handleStartInterview} />}
+      {state === 'setup' && <InterviewSetup onStart={handleStartInterview} isLoading={isLoading} />}
       {state === 'interview' && (
         <ChatInterface
           messages={session.messages}

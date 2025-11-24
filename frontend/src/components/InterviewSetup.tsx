@@ -12,9 +12,10 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 interface Props {
     onStart: (config: InterviewConfig) => void;
+    isLoading: boolean;
 }
 
-export default function InterviewSetup({ onStart }: Props) {
+export default function InterviewSetup({ onStart, isLoading }: Props) {
     const [role, setRole] = useState('Software Engineer');
     const [difficulty, setDifficulty] = useState('Medium');
     const [resumeText, setResumeText] = useState('');
@@ -59,6 +60,7 @@ export default function InterviewSetup({ onStart }: Props) {
                                 onChange={(e) => setRole(e.target.value)}
                                 placeholder="e.g., Software Engineer, Data Scientist"
                                 required
+                                disabled={isLoading}
                                 className="h-11"
                             />
                         </div>
@@ -68,7 +70,7 @@ export default function InterviewSetup({ onStart }: Props) {
                             <Label htmlFor="difficulty" className="text-sm font-semibold">
                                 Difficulty Level
                             </Label>
-                            <Select value={difficulty} onValueChange={setDifficulty}>
+                            <Select value={difficulty} onValueChange={setDifficulty} disabled={isLoading}>
                                 <SelectTrigger className="h-11">
                                     <SelectValue placeholder="Select difficulty" />
                                 </SelectTrigger>
@@ -92,6 +94,7 @@ export default function InterviewSetup({ onStart }: Props) {
                                 rows={6}
                                 placeholder="Paste your resume or key experience highlights here for a personalized interview..."
                                 className="resize-none"
+                                disabled={isLoading}
                             />
                             <p className="text-xs text-muted-foreground mt-1">
                                 This helps the AI tailor questions to your background
@@ -101,11 +104,21 @@ export default function InterviewSetup({ onStart }: Props) {
                         {/* Submit Button */}
                         <Button
                             type="submit"
-                            className="w-full h-12 bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl"
+                            disabled={isLoading}
+                            className="w-full h-12 bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl disabled:opacity-80 disabled:cursor-not-allowed"
                             size="lg"
                         >
-                            <span>Start Interview</span>
-                            <ArrowForwardIcon sx={{ fontSize: 20, marginLeft: 1 }} />
+                            {isLoading ? (
+                                <div className="flex items-center gap-2">
+                                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                    <span>Setting up Interview...</span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-1">
+                                    <span>Start Interview</span>
+                                    <ArrowForwardIcon sx={{ fontSize: 20 }} />
+                                </div>
+                            )}
                         </Button>
                     </form>
                 </CardContent>

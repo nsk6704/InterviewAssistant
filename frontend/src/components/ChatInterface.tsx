@@ -29,7 +29,7 @@ export default function ChatInterface({
 }: Props) {
     const [input, setInput] = useState('');
     const [isListening, setIsListening] = useState(false);
-    const [isSpeaking, setIsSpeaking] = useState(true);
+    const [isSpeaking, setIsSpeaking] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const lastSpokenIndexRef = useRef<number>(-1);
@@ -98,7 +98,7 @@ export default function ChatInterface({
             speak(lastMsg.content, interviewerVoice, () => {
                 // Voice finished - Auto start recording
                 // Check if we are already recording to avoid toggling off
-                if (!mediaRecorderRef.current || mediaRecorderRef.current.state === 'inactive') {
+                if (isSpeaking && (!mediaRecorderRef.current || mediaRecorderRef.current.state === 'inactive')) {
                     toggleListening();
                 }
             });
@@ -201,7 +201,8 @@ export default function ChatInterface({
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey && !isLoading && input.trim()) {
                                     e.preventDefault();
-                                    handleSubmit(e as any);
+                                    onSendMessage(input.trim());
+                                    setInput('');
                                 }
                             }}
                         />
