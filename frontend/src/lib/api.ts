@@ -1,8 +1,13 @@
 import axios from 'axios';
 import type { InterviewConfig, FeedbackResponse } from '@/types';
 
-const rawApiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-export const API_BASE = rawApiBase.replace(/\/$/, '');
+const configuredApiBase = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+const normalizedApiBase = configuredApiBase
+    ? /^(https?:)?\/\//i.test(configuredApiBase)
+        ? configuredApiBase
+        : `https://${configuredApiBase}`
+    : 'http://localhost:8000';
+export const API_BASE = normalizedApiBase.replace(/\/+$/, '');
 
 export const api = {
     async startInterview(config: InterviewConfig) {
