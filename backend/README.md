@@ -2,6 +2,12 @@
 
 FastAPI backend for the Interview Practice Partner AI Agent.
 
+## Model Routing
+
+- Primary chat model: `openai/gpt-oss-120b`
+- Fallback chat model: `llama-3.3-70b-versatile`
+- Rationale: the previous Maverick-first path was deprecated, so the backend now uses GPT-OSS as the default path.
+
 ## Setup
 
 ```bash
