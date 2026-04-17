@@ -1,6 +1,7 @@
 from groq import Groq
 from typing import List, Dict
 import json
+import re
 from models import InterviewConfig, FeedbackResponse
 from interviewer_profiles import get_random_interviewer
 
@@ -23,7 +24,15 @@ class InterviewAgent:
         prompt = f"""You are {self.interviewer['name']}, an expert technical interviewer conducting a mock interview for the role of {self.config.role}.
 Difficulty Level: {self.config.difficulty}.
 
-Your goal is to assess the candidate's technical skills, problem-solving approach, communication ability, and cultural fit.
+Your goal is to assess the candidate's technical skills, problem-solving approach, communication ability, and cultural fit. In case of coding questions, such as you giving the function in python and user responding with the output, ensure proper syntax highlighting and formatting of the snippet. For example if its  ```python def mystery_function(n): result = 0 for i in range(n): result += i return result print(mystery_function(5)) ```,
+the I want the output to NOT be in the usual markdown notation but just as plain text like 
+def mystery_function(n):
+    result = 0
+    for i in range(n):
+        result += i
+    return result
+
+with simple syntax highlighting.                     
 """
         if self.config.resume_text:
             prompt += f"\nCandidate's Resume Context:\n{self.config.resume_text}\n"
@@ -36,6 +45,15 @@ Core Interview Guidelines:
 4. If uncertain about their response, probe deeper to understand their thought process.
 5. Maintain a professional yet supportive tone throughout.
 6. Keep responses concise (under 100 words) unless explaining complex concepts.
+
+Output and Style Rules (Strict):
+1. Plain text only. Do not use markdown.
+2. Never use bold markers like **text** or __text__.
+3. Never use code fences (```), markdown headers, or markdown bullet syntax.
+4. Never use em dash or en dash characters.
+5. If you include code, write raw plain text with normal indentation only.
+6. Start directly with your message. Do not prefix with your name label on each reply.
+
 
 Adaptive Conversation Management:
 
@@ -67,6 +85,79 @@ Adaptive Conversation Management:
 Remember: Stay professional, adaptable, and focused on helping the candidate demonstrate their best abilities."""
         return prompt
 
+    def _sanitize_assistant_text(self, text: str) -> str:
+        """Normalize assistant output to plain text and remove disallowed formatting."""
+        if not text:
+            return ""
+
+        cleaned = text
+
+        # Remove markdown bold and inline code markers while keeping content.
+        cleaned = re.sub(r"\*\*(.*?)\*\*", r"\1", cleaned, flags=re.DOTALL)
+        cleaned = re.sub(r"__(.*?)__", r"\1", cleaned, flags=re.DOTALL)
+        cleaned = cleaned.replace("`", "")
+
+        # Replace em/en dashes with plain hyphen for consistency.
+        cleaned = cleaned.replace("—", " - ").replace("–", " - ")
+
+        # Remove leading markdown header markers from lines.
+        cleaned = re.sub(r"^\s{0,3}#{1,6}\s*", "", cleaned, flags=re.MULTILINE)
+
+        # Collapse excessive blank lines.
+        cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+
+        return cleaned.strip()
+
+    def _rebalance_feedback_sections(self, feedback_json: Dict) -> Dict:
+        """Move clearly miscategorized items between strengths and improvements."""
+        strengths = [str(item).strip() for item in feedback_json.get("strengths", []) if str(item).strip()]
+        improvements = [str(item).strip() for item in feedback_json.get("improvements", []) if str(item).strip()]
+
+        negative_cues = [
+            "improve", "should", "need to", "needs to", "lacked", "lacks", "weak", "unclear",
+            "missing", "struggled", "struggle", "off-topic", "rambling", "insufficient", "could be better"
+        ]
+        positive_cues = [
+            "strong", "clear", "good", "well", "effective", "solid", "excellent", "demonstrated",
+            "confident", "structured", "accurate"
+        ]
+
+        def has_any(text: str, cues: List[str]) -> bool:
+            lower = text.lower()
+            return any(cue in lower for cue in cues)
+
+        kept_strengths: List[str] = []
+        moved_to_improvements: List[str] = []
+        for item in strengths:
+            if has_any(item, negative_cues):
+                moved_to_improvements.append(item)
+            else:
+                kept_strengths.append(item)
+
+        kept_improvements: List[str] = []
+        moved_to_strengths: List[str] = []
+        for item in improvements:
+            if has_any(item, positive_cues) and not has_any(item, negative_cues):
+                moved_to_strengths.append(item)
+            else:
+                kept_improvements.append(item)
+
+        strengths = (kept_strengths + moved_to_strengths)[:3]
+        improvements = (kept_improvements + moved_to_improvements)[:3]
+
+        if not strengths:
+            strengths = ["Demonstrated willingness to engage with interview questions."]
+        if not improvements:
+            improvements = ["Provide more specific technical examples and reasoning in each answer."]
+
+        overall_feedback = self._sanitize_assistant_text(str(feedback_json.get("overall_feedback", "")))
+
+        feedback_json["strengths"] = [self._sanitize_assistant_text(item) for item in strengths]
+        feedback_json["improvements"] = [self._sanitize_assistant_text(item) for item in improvements]
+        feedback_json["overall_feedback"] = overall_feedback
+
+        return feedback_json
+
     def generate_response(self, user_input: str) -> str:
         # Add user message to history
         self.history.append({"role": "user", "content": user_input})
@@ -76,9 +167,9 @@ Remember: Stay professional, adaptable, and focused on helping the candidate dem
             self.user_response_count += 1
         
         try:
-            # Try Llama 4 Maverick first
+            # Primary chat model: GPT-OSS (Maverick was deprecated)
             completion = self.client.chat.completions.create(
-                model="meta-llama/llama-4-maverick-17b-128e-instruct",
+                model="openai/gpt-oss-120b",
                 messages=self.history,
                 temperature=0.7,
                 max_tokens=500,
@@ -87,8 +178,8 @@ Remember: Stay professional, adaptable, and focused on helping the candidate dem
                 stop=None,
             )
         except Exception as e:
-            # Fallback to llama-3.3-70b-versatile if Maverick is down
-            print(f"[WARN] Llama 4 Maverick unavailable, falling back to llama-3.3-70b-versatile: {str(e)}")
+            # Fallback model if GPT-OSS is unavailable
+            print(f"[WARN] GPT-OSS unavailable, falling back to llama-3.3-70b-versatile: {str(e)}")
             completion = self.client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=self.history,
@@ -99,7 +190,7 @@ Remember: Stay professional, adaptable, and focused on helping the candidate dem
                 stop=None,
             )
         
-        assistant_message = completion.choices[0].message.content
+        assistant_message = self._sanitize_assistant_text(completion.choices[0].message.content)
         self.history.append({"role": "assistant", "content": assistant_message})
         
         return assistant_message
@@ -156,6 +247,10 @@ Important:
 - Be honest: Don't inflate scores, but be constructive
 - Communication score should reflect more than grammar - focus on clarity, structure, and engagement
 - If they struggled with communication, explain WHY (e.g., "lacked structure" not just "poor communication")
+- Put only positive observations in "strengths"
+- Put only gaps, missing behaviors, or corrective actions in "improvements"
+- Never place a weakness in "strengths", and never place a clear strength in "improvements"
+- Use plain text only and never use markdown markers or em dash/en dash characters
 
 Do not output anything else besides the JSON."""
 
@@ -164,16 +259,16 @@ Do not output anything else besides the JSON."""
         messages.append({"role": "user", "content": feedback_prompt})
         
         try:
-            # Try Llama 4 Maverick first
+            # Primary feedback model: GPT-OSS (Maverick was deprecated)
             completion = self.client.chat.completions.create(
-                model="meta-llama/llama-4-maverick-17b-128e-instruct",
+                model="openai/gpt-oss-120b",
                 messages=messages,
                 temperature=0.5,
                 response_format={"type": "json_object"}
             )
         except Exception as e:
-            # Fallback to llama-3.3-70b-versatile
-            print(f"[WARN] Llama 4 Maverick unavailable for feedback, falling back to llama-3.3-70b-versatile: {str(e)}")
+            # Fallback model if GPT-OSS is unavailable
+            print(f"[WARN] GPT-OSS unavailable for feedback, falling back to llama-3.3-70b-versatile: {str(e)}")
             completion = self.client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=messages,
@@ -182,5 +277,6 @@ Do not output anything else besides the JSON."""
             )
         
         feedback_json = json.loads(completion.choices[0].message.content)
+        feedback_json = self._rebalance_feedback_sections(feedback_json)
         
         return FeedbackResponse(**feedback_json)
