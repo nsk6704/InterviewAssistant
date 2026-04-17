@@ -23,4 +23,5 @@ export interface SessionState {
     isInterviewing: boolean;
     feedback: FeedbackResponse | null;
     interviewerVoice?: string;
+    interviewerDirection?: string;
 }

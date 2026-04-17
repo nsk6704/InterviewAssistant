@@ -15,6 +15,7 @@ function App() {
     isInterviewing: false,
     feedback: null,
     interviewerVoice: undefined,
+    interviewerDirection: undefined,
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,6 +30,7 @@ function App() {
         isInterviewing: true,
         feedback: null,
         interviewerVoice: data.interviewer_voice,
+        interviewerDirection: data.interviewer_direction,
       });
       setState('interview');
     } catch (error) {
@@ -111,6 +113,7 @@ function App() {
       isInterviewing: false,
       feedback: null,
       interviewerVoice: undefined,
+      interviewerDirection: undefined,
     });
     setState('setup');
     setIsLoading(false);
@@ -126,6 +129,7 @@ function App() {
           onEndInterview={handleEndInterview}
           isLoading={isLoading}
           interviewerVoice={session.interviewerVoice}
+          interviewerDirection={session.interviewerDirection}
         />
       )}
       {state === 'feedback' && session.feedback && (

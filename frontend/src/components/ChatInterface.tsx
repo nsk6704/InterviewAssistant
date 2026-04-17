@@ -18,6 +18,7 @@ interface Props {
     onEndInterview: () => void;
     isLoading: boolean;
     interviewerVoice?: string;
+    interviewerDirection?: string;
 }
 
 export default function ChatInterface({
@@ -26,6 +27,7 @@ export default function ChatInterface({
     onEndInterview,
     isLoading,
     interviewerVoice,
+    interviewerDirection,
 }: Props) {
     const [input, setInput] = useState('');
     const [isListening, setIsListening] = useState(false);
@@ -38,6 +40,8 @@ export default function ChatInterface({
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isLoading]);
+
+
 
 
 
@@ -101,9 +105,9 @@ export default function ChatInterface({
                 if (isSpeaking && (!mediaRecorderRef.current || mediaRecorderRef.current.state === 'inactive')) {
                     toggleListening();
                 }
-            });
+            }, interviewerDirection);
         }
-    }, [messages, isSpeaking, interviewerVoice]); // toggleListening is stable enough or we accept re-runs
+    }, [messages, isSpeaking, interviewerVoice, interviewerDirection, toggleListening]); // toggleListening is stable enough or we accept re-runs
 
     return (
         <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-blue-50 overflow-hidden">

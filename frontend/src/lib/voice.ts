@@ -103,10 +103,15 @@ export const startRecording = async (
     }
 };
 
-// Text-to-Speech using PlayAI via Groq (much better quality than browser TTS)
+// Text-to-speech via backend Groq endpoint
 let currentAudio: HTMLAudioElement | null = null;
 
-export const speak = async (text: string, voice: string = "Ruby-PlayAI", onEnd?: () => void) => {
+export const speak = async (
+    text: string,
+    voice: string = "autumn",
+    onEnd?: () => void,
+    direction: string = "friendly"
+) => {
     // Stop any ongoing speech
     stopSpeaking();
 
@@ -116,7 +121,7 @@ export const speak = async (text: string, voice: string = "Ruby-PlayAI", onEnd?:
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ text, voice }),
+            body: JSON.stringify({ text, voice, direction }),
         });
 
         if (!response.ok) {
