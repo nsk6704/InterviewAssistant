@@ -2,7 +2,7 @@ import { useState } from 'react';
 import InterviewSetup from './components/InterviewSetup';
 import ChatInterface from './components/ChatInterface';
 import FeedbackView from './components/FeedbackView';
-import { api } from './lib/api';
+import { api, API_BASE } from './lib/api';
 import type { InterviewConfig, SessionState } from './types';
 
 type AppState = 'setup' | 'interview' | 'feedback';
@@ -35,7 +35,7 @@ function App() {
       setState('interview');
     } catch (error) {
       console.error('Failed to start interview:', error);
-      alert('Failed to start interview. Make sure the backend is running on http://localhost:8000');
+      alert(`Failed to start interview. Make sure the backend is running on ${API_BASE}`);
     } finally {
       setIsLoading(false);
     }

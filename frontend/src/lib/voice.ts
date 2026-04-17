@@ -1,12 +1,13 @@
 // Voice utilities for Interview Practice Partner
 import { showToast } from './toast';
+import { API_BASE } from './api';
 
 // Use Whisper API for speech-to-text (more accurate than browser STT)
 export const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'recording.webm');
 
-    const response = await fetch('http://localhost:8000/transcribe', {
+    const response = await fetch(`${API_BASE}/transcribe`, {
         method: 'POST',
         body: formData,
     });
@@ -116,7 +117,7 @@ export const speak = async (
     stopSpeaking();
 
     try {
-        const response = await fetch('http://localhost:8000/tts', {
+        const response = await fetch(`${API_BASE}/tts`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
