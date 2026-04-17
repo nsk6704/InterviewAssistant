@@ -33,9 +33,14 @@ function App() {
         interviewerDirection: data.interviewer_direction,
       });
       setState('interview');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to start interview:', error);
-      alert(`Failed to start interview. Make sure the backend is running on ${API_BASE}`);
+      const status = error?.response?.status;
+      const detail = error?.response?.data?.detail;
+      const message = detail
+        ? `Failed to start interview (${status ?? 'error'}): ${detail}`
+        : `Failed to start interview. Make sure the backend is running on ${API_BASE}`;
+      alert(message);
     } finally {
       setIsLoading(false);
     }
