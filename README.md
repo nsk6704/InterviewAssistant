@@ -156,22 +156,61 @@ Access the app at `http://localhost:5173`.
 ## Project Structure
 
 ```
-AntiGrav/
+
+root/
 ├── backend/
-│   ├── main.py          # FastAPI app & endpoints
-│   ├── agent.py         # AI agent logic (GPT-OSS primary, Llama fallback)
-│   ├── models.py        # Pydantic models
-│   └── .env             # Environment variables
+│   ├── main.py                    # FastAPI app & API endpoints
+│   ├── agent.py                   # InterviewAgent class with GPT-OSS primary, Llama fallback
+│   ├── models.py                  # Pydantic models (InterviewConfig, FeedbackResponse)
+│   ├── interviewer_profiles.py   # Random interviewer profile selection
+│   ├── requirements.txt           # Python dependencies
+│   ├── .env                       # Environment variables (GROQ_API_KEY)
+│   ├── .gitignore                 # Git ignore rules
+│   └── README.md                  # Backend setup instructions
 └── frontend/
     ├── src/
     │   ├── components/
-    │   │   ├── InterviewSetup.tsx    # Role/difficulty selection
-    │   │   ├── ChatInterface.tsx     # Main interview chat
-    │   │   └── FeedbackView.tsx      # Post-interview feedback
+    │   │   ├── InterviewSetup.tsx     # Role/difficulty selection screen
+    │   │   ├── ChatInterface.tsx      # Main interview chat interface
+    │   │   ├── FeedbackView.tsx       # Post-interview feedback display
+    │   │   └── ui/                    # Shadcn UI components
+    │   │       ├── button.tsx
+    │   │       ├── card.tsx
+    │   │       ├── input.tsx
+    │   │       ├── label.tsx
+    │   │       ├── progress.tsx
+    │   │       ├── select.tsx
+    │   │       ├── separator.tsx
+    │   │       ├── skeleton.tsx
+    │   │       └── textarea.tsx
     │   ├── lib/
-    │   │   ├── voice.ts              # Web Speech API utilities
-    │   │   └── toast.ts              # Custom toast notifications
-    │   └── App.tsx                   # Main app component
+    │   │   ├── api.ts                 # API client (axios) for backend calls
+    │   │   ├── voice.ts               # Voice utilities (STT via Groq Whisper, TTS via PlayAI)
+    │   │   ├── toast.ts               # Custom toast notification system
+    │   │   └── utils.ts               # Utility functions (cn for className merging)
+    │   ├── types/
+    │   │   └── index.ts               # TypeScript type definitions
+    │   ├── assets/                    # Static assets
+    │   ├── App.tsx                    # Main app component with state management
+    │   ├── App.css                    # App-specific styles
+    │   ├── main.tsx                   # React entry point
+    │   └── index.css                  # Global styles with Tailwind CSS
+    ├── public/
+    │   └── favicon.png                # App favicon
+    ├── index.html                     # HTML entry point
+    ├── package.json                   # Node dependencies and scripts
+    ├── tsconfig.json                  # TypeScript configuration (base)
+    ├── tsconfig.app.json              # TypeScript config for app
+    ├── tsconfig.node.json             # TypeScript config for Vite
+    ├── vite.config.ts                 # Vite bundler configuration
+    ├── tailwind.config.js             # Tailwind CSS configuration
+    ├── postcss.config.js              # PostCSS configuration
+    ├── components.json                # Shadcn UI component config
+    ├── eslint.config.js               # ESLint configuration
+    ├── .gitignore                     # Git ignore rules
+    └── README.md                      # Frontend setup instructions
+├── README.md                          # Project overview and documentation
+└── .gitignore                         # Root git ignore
 ```
 
 ---
