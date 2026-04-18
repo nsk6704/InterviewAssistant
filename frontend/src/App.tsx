@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import InterviewSetup from './components/InterviewSetup';
 import ChatInterface from './components/ChatInterface';
 import FeedbackView from './components/FeedbackView';
@@ -140,6 +141,7 @@ function App() {
       {state === 'feedback' && session.feedback && (
         <FeedbackView feedback={session.feedback} onNewInterview={handleRestart} />
       )}
+      <Analytics />
     </>
   );
 }
